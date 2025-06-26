@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>История диалога</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .message-card {
+            border-left: 4px solid #dee2e6;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+        .message-card.current {
+            border-left-color: #0d6efd;
+            background-color: #f8f9fa;
+        }
+        .message-time {
+            font-size: 0.8em;
+            color: #6c757d;
+        }
+        .message-status {
+            font-size: 0.8em;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        .status-pending {
+            background-color: #fff3cd;
+        }
+        .status-approved {
+            background-color: #d1e7dd;
+        }
+        .status-rejected {
+            background-color: #f8d7da;
+        }
+        .llm-response {
+            background-color: #e9ecef;
+            padding: 8px;
+            border-radius: 4px;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h2>История диалога</h2>
+        <div class="mb-3">
+            <a href="{{ request.url_for('admin:list', identity='message') }}" class="btn btn-secondary">
+                ← Назад к списку
+            </a>
+        </div>
+
+        <div class="dialog-container">
+            {% for msg in messages %}
+            <div class="message-card {% if msg.id == current_message_id %}current{% endif %}">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="message-time">
+                        {{ msg.created_at.strftime('%d.%m.%Y %H:%M') }}
+                    </span>
+                    <span class="message-status status-{{ msg.status }}">
+                        {{ msg.status }}
+                    </span>
+                </div>
+
+                <div class="message-text">
+                    {{ msg.text }}
+                </div>
+
+                {% if msg.response_text %}
+                <div class="llm-response mt-2">
+                    <strong>Ответ:</strong> {{ msg.response_text }}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
