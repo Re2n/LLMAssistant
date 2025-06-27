@@ -13,11 +13,11 @@ class MessageService:
         new_message = await self.repository.create(session, message.chat_id, message.text)
         return new_message
 
-    async def update_response_text(self, session: AsyncSession, message: MessageUpdate):
+    async def update_message(self, session: AsyncSession, message: MessageUpdate):
         msg = await self.repository.get_by_id(session, message.id)
         if msg is None:
             return msg
-        return await self.repository.update_response_text(session, message)
+        return await self.repository.update(session, message)
 
     async def get_history(self, session: AsyncSession, chat_id: int):
         msgs = await self.repository.get_history(session, chat_id)
@@ -26,3 +26,7 @@ class MessageService:
             history.append({"role": "user", "content": "Вопрос:" + msg.text + "Ответ: " + (
                 msg.response_text if msg.response_text is not None else "")})
         return history
+
+    async def get_by_id(self, session: AsyncSession, msg_id: int):
+        msg = await self.repository.get_by_id(session, msg_id)
+        return msg

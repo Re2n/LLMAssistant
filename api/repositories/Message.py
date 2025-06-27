@@ -20,7 +20,7 @@ class MessageRepository:
         res = await session.execute(stmt)
         return res.scalar_one_or_none()
 
-    async def update_response_text(self, session: AsyncSession, message: MessageUpdate) -> Message | None:
+    async def update(self, session: AsyncSession, message: MessageUpdate) -> Message | None:
         msg = await self.get_by_id(session, message.id)
         msg_dict = message.model_dump(exclude_unset=True, exclude_none=True)
         for field, value in msg_dict.items():

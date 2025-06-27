@@ -1,3 +1,4 @@
+import aiohttp
 from sqlalchemy import Select, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.templating import Jinja2Templates
@@ -8,27 +9,36 @@ from config.Database import db
 from models.Message import Message
 from fastapi.responses import RedirectResponse
 
+from schemas.Message import MessageUpdateStatus
+from utils.depends import message_service
+
 templates = Jinja2Templates(directory="templates")
 
 
 async def send_telegram_message(tg_id: str, text: str):
     print(f"Отправлено в Telegram {tg_id}: {text}")
 
+
 class PendingMessageAdmin(ModelView, model=Message):
     name = "Сообщения на модерации"
     name_plural = "Сообщения на модерации"
+    can_create = False
+    can_delete = False
 
     def list_query(self, request: Request) -> Select:
         return select(Message).where(Message.status == "pending")
 
     column_list = [
-        "id",
-        "tg_id",
+        "chat_id",
         "text",
+        "response_text",
         "created_at",
-        "response_text"
     ]
+    column_labels = {Message.chat_id: "Идендификатор пользователя", Message.text: "Сообщение",
+                     Message.response_text: "Ответ LLM", Message.created_at: "Дата получения", Message.status: "Статус"}
+    column_details_exclude_list = [Message.created_at, Message.id]
     column_default_sort = [("created_at", True)]
+    form_rules = ["text", "response_text"]
 
     # Кастомные действия
     actions = ["approve", "reject", "edit_dialog"]
@@ -37,20 +47,18 @@ class PendingMessageAdmin(ModelView, model=Message):
         name="approve",
         label="Принять",
         add_in_list=True,
-        add_in_detail = True
+        add_in_detail=True
     )
     async def approve_action(self, request: Request):
         msg_id = request.query_params.get("pks")
-        session = AsyncSession(db.engine)
-        try:
-            message = await session.get(Message, int(msg_id))
-            message.status = "approved"
-            if message.chat_id and message.response_text:
-                await send_telegram_message(str(message.chat_id), str(message.response_text))
-            await session.commit()
-            return RedirectResponse(url=request.url_for("admin:list", identity="message"))
-        finally:
-            await session.close()
+        async for session in db.session_getter():
+            try:
+                msg = await message_service.get_by_id(session, msg_id)
+                await message_service.update_message(session, MessageUpdateStatus(id=msg_id, status="approved"))
+                await send_telegram_message(str(msg.chat_id), str(msg.response_text))
+                return RedirectResponse(url=request.url_for("admin:list", identity="message"))
+            finally:
+                await session.close()
 
     @action(
         name="reject",
@@ -60,14 +68,19 @@ class PendingMessageAdmin(ModelView, model=Message):
     )
     async def reject_action(self, request: Request):
         msg_id = request.query_params.get("pks")
-        session = AsyncSession(db.engine)
-        try:
-            message = await session.get(Message, int(msg_id))
-            message.status = "rejected"
-            await session.commit()
-            return RedirectResponse(url=request.url_for("admin:list", identity="message"))
-        finally:
-            await session.close()
+        async for session in db.session_getter():
+            try:
+                msg = await message_service.get_by_id(session, msg_id)
+                await message_service.update_message(session, MessageUpdateStatus(id=msg_id, status="rejected"))
+                payload = {
+                    "id": msg_id,
+                    "chat_id": str(msg.chat_id)
+                }
+                async with aiohttp.ClientSession() as aio_session:
+                    await aio_session.post("http://localhost:5466/create", json=payload)
+                return RedirectResponse(url=request.url_for("admin:list", identity="message"))
+            finally:
+                await session.close()
 
     @action(
         name="view_dialog",

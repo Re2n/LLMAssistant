@@ -11,5 +11,4 @@ class Message(Base, IntIdPkMixin):
     text: Mapped[str] = mapped_column()
     status: Mapped[str] = mapped_column(default="new")  # new/pending/approved/rejected
     chat_id: Mapped[int] = mapped_column(BigInteger)
-    is_llm_processed: Mapped[bool] = mapped_column(default=False)
     response_text: Mapped[str] = mapped_column(nullable=True)  # Ответ для отправки в TG

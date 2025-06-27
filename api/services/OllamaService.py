@@ -38,7 +38,7 @@ class OllamaService:
                             "response_text": str(clean_response(response_data['message']['content'])),
                             "status": "pending"
                         }
-                        await session.patch("http://localhost:5466/update_response_text", json=payload)
+                        await session.patch("http://localhost:5466/update_message", json=payload)
                         return response_data['message']['content']
                     else:
                         error = await resp.text()
