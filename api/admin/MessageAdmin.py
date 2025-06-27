@@ -1,11 +1,12 @@
 import aiohttp
+from aiogram import Bot
 from sqlalchemy import Select, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.templating import Jinja2Templates
 from sqladmin import Admin, ModelView, action
 from fastapi import Request
 
-from config.Database import db
+from config.Database import db, bot_token
 from models.Message import Message
 from fastapi.responses import RedirectResponse
 
@@ -13,10 +14,11 @@ from schemas.Message import MessageUpdateStatus
 from utils.depends import message_service
 
 templates = Jinja2Templates(directory="templates")
+bot = Bot(token=bot_token)
 
 
-async def send_telegram_message(tg_id: str, text: str):
-    print(f"Отправлено в Telegram {tg_id}: {text}")
+async def send_telegram_message(chat_id: str, text: str):
+    await bot.send_message(chat_id, text)
 
 
 class PendingMessageAdmin(ModelView, model=Message):
