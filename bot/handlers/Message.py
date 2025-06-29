@@ -12,4 +12,4 @@ async def message_with_text(message: Message):
         "text": message.text
     }
     async with aiohttp.ClientSession() as session:
-        await session.post("http://localhost:5466/create", json=payload)
+        await session.post("http://api:5466/create", json=payload)

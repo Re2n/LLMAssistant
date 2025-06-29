@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: ./api
+    ports:
+      - "5466:5466"
+    volumes:
+      - ./api:/app
+    depends_on:
+      - ollama
+    networks:
+      - app-network
+    env_file:
+      - .env
+
+  bot:
+    build:
+      context: ./bot
+    depends_on:
+      - api
+    networks:
+      - app-network
+    env_file:
+      - .env
+
+  ollama:
+    image: ollama/ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - app-network
+
+volumes:
+  ollama_data:
+
+networks:
+  app-network:
+    driver: bridge
