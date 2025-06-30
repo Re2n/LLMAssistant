@@ -56,7 +56,7 @@ class PendingMessageAdmin(ModelView, model=Message):
         async for session in db.session_getter():
             try:
                 msg = await message_service.get_by_id(session, msg_id)
-                await message_service.update_message(session, MessageUpdateStatus(id=msg_id, status="approved"))
+                await message_service.update_message(session, msg_id, MessageUpdateStatus(status="approved"))
                 await send_telegram_message(str(msg.chat_id), str(msg.response_text))
                 return RedirectResponse(url=request.url_for("admin:list", identity="message"))
             finally:
@@ -72,14 +72,9 @@ class PendingMessageAdmin(ModelView, model=Message):
         msg_id = request.query_params.get("pks")
         async for session in db.session_getter():
             try:
-                msg = await message_service.get_by_id(session, msg_id)
-                await message_service.update_message(session, MessageUpdateStatus(id=msg_id, status="rejected"))
-                payload = {
-                    "id": msg_id,
-                    "chat_id": str(msg.chat_id)
-                }
+                await message_service.update_message(session, msg_id, MessageUpdateStatus(status="rejected"))
                 async with aiohttp.ClientSession() as aio_session:
-                    await aio_session.post("http://localhost:5466/create", json=payload)
+                    await aio_session.post(f"http://localhost:5466/repeat/{msg_id}")
                 return RedirectResponse(url=request.url_for("admin:list", identity="message"))
             finally:
                 await session.close()

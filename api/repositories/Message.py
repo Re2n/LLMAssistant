@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.sync import update
 
 from models.Message import Message
-from schemas.Message import MessageUpdate
+from schemas.Message import MessageUpdate, MessageUpdateStatus
 
 
 class MessageRepository:
@@ -20,8 +20,8 @@ class MessageRepository:
         res = await session.execute(stmt)
         return res.scalar_one_or_none()
 
-    async def update(self, session: AsyncSession, message: MessageUpdate) -> Message | None:
-        msg = await self.get_by_id(session, message.id)
+    async def update(self, session: AsyncSession, msg_id: int, message: MessageUpdate | MessageUpdateStatus) -> Message | None:
+        msg = await self.get_by_id(session, msg_id)
         msg_dict = message.model_dump(exclude_unset=True, exclude_none=True)
         for field, value in msg_dict.items():
             setattr(msg, field, value)
