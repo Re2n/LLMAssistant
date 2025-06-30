@@ -172,7 +172,7 @@ Tg-бот должен:
 
 1. `git pull https://github.com/Re2n/LLMAssistant.git`
 2. Создаем файл .env и заполняем его по примеру из .env-example
-3. `docker compose up -d`
+3. `docker-compose up -d`
 4. `docker exec -it llmassistant-ollama-1 ollama pull <qwen3:1.7b/имя модели которую хотите установить>`
 
 [Веб-интерфейс](http://localhost:5466/admin/message/list)
