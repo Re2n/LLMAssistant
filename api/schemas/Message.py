@@ -6,7 +6,7 @@ class MessageCreate(BaseModel):
     text: str
 
 class MessageUpdate(BaseModel):
-    response_text: str | None
+    response_text: str
     status: str
 
 class MessageUpdateStatus(BaseModel):

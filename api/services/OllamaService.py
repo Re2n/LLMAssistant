@@ -12,9 +12,6 @@ class OllamaService:
         self.model_name = model_name
 
     async def query_ollama(self, messages: List[Dict[str, str]], current_msg_id: int) -> str:
-        """
-        Функция для запроса к OLLAMA API
-        """
         # Преобразуем историю сообщений в формат OLLAMA
         ollama_messages = []
         for msg in messages:
@@ -43,8 +40,6 @@ class OllamaService:
                     else:
                         error = await resp.text()
                         print(error)
-                        # logger.error(f"OLLAMA API error: {error}")
                         return "Извините, произошла ошибка при обработке запроса."
         except Exception as e:
-            # logger.error(f"Connection error: {e}"))
             return "Не удалось подключиться к модели. Попробуйте позже."

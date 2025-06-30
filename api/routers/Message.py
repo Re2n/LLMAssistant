@@ -28,7 +28,6 @@ async def repeat_message(session: Annotated[AsyncSession, Depends(db.session_get
     msg = await message_service.get_by_id(session, msg_id)
     msgs = await message_service.get_history(session, msg.chat_id)
     prompt = await get_prompt(msgs[1:], msgs[0]['content'])
-    print(prompt)
     background_tasks.add_task(ollama_service.query_ollama, prompt, msg.id)
     return msg
 
