@@ -175,6 +175,8 @@ Tg-бот должен:
 3. `docker compose up -d`
 4. `docker exec -it llmassistant-ollama-1 ollama pull <qwen3:1.7b/имя модели которую хотите установить>`
 
+[Веб-интерфейс](http://localhost:5466/admin/message/list)
+
 ## Будущие улучшения
 
 1. Добавление Celery+Redis для асинхронной обработки (в данный момент используется встроенный в FastAPI класс BackgroundTask для получения ответа от LLM)
