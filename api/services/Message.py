@@ -1,6 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from config.Database import query
 from repositories.Message import MessageRepository
 from schemas.Message import MessageCreate, MessageUpdate
 

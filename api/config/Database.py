@@ -1,3 +1,5 @@
+import hashlib
+
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
 from config.Environment import get_environment_variables
@@ -26,5 +28,5 @@ db = Db(DATABASE_URL)
 bot_token = env.BOT_TOKEN
 ollama_url = env.OLLAMA_URL
 model_name = env.MODEL_NAME
-query = {"role": "system",
-         "content": "Отвечай строго на последний вопрос, используя предыдущие только для контекста."}
+credentials = [env.ADMIN_USER, env.ADMIN_PASSWORD]
+token = hashlib.sha256((str(env.ADMIN_USER)+str(env.ADMIN_PASSWORD)).encode('utf-8')).hexdigest()

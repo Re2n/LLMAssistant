@@ -3,7 +3,7 @@ from typing import Annotated, List
 from fastapi import APIRouter, Depends, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from config.Database import db, query
+from config.Database import db
 from schemas.Message import MessageCreate, MessageUpdate, MessageUpdateStatus
 from utils.depends import message_service, ollama_service
 from utils.prompt import get_prompt

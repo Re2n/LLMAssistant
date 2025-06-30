@@ -14,6 +14,8 @@ class EnvironmentSettings(BaseSettings):
     BOT_TOKEN: str = os.getenv("BOT_TOKEN")
     OLLAMA_URL: str = os.getenv("OLLAMA_URL")
     MODEL_NAME: str = os.getenv("MODEL_NAME")
+    ADMIN_USER: str = os.getenv("ADMIN_USER")
+    ADMIN_PASSWORD: str = os.getenv("ADMIN_PASSWORD")
 
 
 @lru_cache
